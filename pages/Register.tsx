@@ -1,11 +1,17 @@
+
 "use client"
 
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useEffect } from "react"
 
-export const Register = () => {
 
-  const { data: session } = useSession()
+const Register = () => {
+  if (!useSession()) {
+    return <p>Please sign in to access the chat.</p>;
+  }
+  const { data: session } = useSession();
+
+
   useEffect(() => {
     if (session)
       createUser(session)
@@ -22,6 +28,7 @@ export const Register = () => {
       console.error("error creating user", error)
     }
   }
+
   return (
 
     <div>
@@ -31,4 +38,5 @@ export const Register = () => {
 
     </div>
   )
-} 
+}
+export default Register

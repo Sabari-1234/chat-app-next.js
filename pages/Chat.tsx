@@ -10,7 +10,9 @@ import React, { useEffect, useState } from 'react'
 import { BsSend } from "react-icons/bs";
 
 const Chat = ({ reciever }: any) => {
-
+  if (!useSession()) {
+    return <p>Please sign in to access the chat.</p>;
+  }
   const { data: session, status } = useSession()
 
 
@@ -50,7 +52,6 @@ const Chat = ({ reciever }: any) => {
 
     console.log(chatData)
   }, [session])
-
 
 
 

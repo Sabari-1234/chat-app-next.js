@@ -4,6 +4,9 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 
 const ChatHome = () => {
+    if (!useSession()) {
+        return <p>Please sign in to access the chat.</p>;
+    }
     const [Members, setMembers] = useState<any>()
     const { data: session } = useSession()
     const getUsers = async () => {
@@ -16,6 +19,7 @@ const ChatHome = () => {
     useEffect(() => {
         getUsers();
     }, [])
+
 
     return (
 
