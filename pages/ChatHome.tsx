@@ -1,4 +1,5 @@
 "use client"
+import { socket } from '@/socket'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
@@ -10,15 +11,19 @@ const ChatHome = () => {
     const [Members, setMembers] = useState<any>()
     const { data: session } = useSession()
     const getUsers = async () => {
-        const res = await fetch('/api/user')
-        const members = await res.json();
+        if (session) {
+            const res = await fetch('/api/user')
+            const members = await res.json();
 
-        setMembers(members)
+            setMembers(members)
+
+        }
     }
 
     useEffect(() => {
         getUsers();
-    }, [])
+    }, [session])
+
 
 
     return (

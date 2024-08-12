@@ -20,10 +20,9 @@ const Register = () => {
 
   const createUser = async (session: any) => {
 
-    console.log(session);
     try {
       const user = await fetch("/api/user", { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(session) })
-      console.log("user created", user)
+
     } catch (error) {
       console.error("error creating user", error)
     }
