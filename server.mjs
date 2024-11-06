@@ -15,11 +15,27 @@ app.prepare().then(() => {
   });
 
   const io = new SocketIOServer(httpServer);
-
+  const connectedClients = {}; // Object to store connected clients and their email IDs
+  const updateOnlineStatus = async (data,email) => {
+    try {
+      await fetch(`http://localhost:3000/api/user/${email}`, {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.error("Failed to update online status:", error);
+    }
+  };
   io.on('connection', (socket) => {
     console.log('Client connected');
+    //on registration
+    socket.on('registerEmail', (email) => {
+      // Store the client's email with their socket ID
+      connectedClients[socket.id] = email;
+      console.log(`Client registered with email: ${email}`);
+  });
 
-   
     
 
     //message event handler
@@ -40,7 +56,28 @@ app.prepare().then(() => {
     });
     // Handle disconnect
     socket.on('disconnect', () => {
-      console.log('Client disconnected');
+      const email = connectedClients[socket.id]; // Get the email ID from the connected clients object
+      if (email) {
+          console.log(`Client disconnected: ${email}`);
+          const now = new Date(Date.now());
+
+          // Format the date and time
+          const formattedDate = now.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true // Set to true if you want 12-hour format
+          });
+          io.emit('online2', { sender: email, text: "Last Seen at"+" "+formattedDate });
+          const updateStatus=async()=>{
+            await updateOnlineStatus({ status: "Last Seen at"+" "+formattedDate},email);
+            delete connectedClients[socket.id]; 
+          }
+          updateStatus();
+      }
     });
   });
 

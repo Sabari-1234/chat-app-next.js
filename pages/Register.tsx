@@ -1,8 +1,10 @@
 
 "use client"
 
+import { socket } from "@/socket";
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useEffect } from "react"
+
 
 
 const Register = () => {
@@ -22,6 +24,7 @@ const Register = () => {
 
     try {
       const user = await fetch("/api/user", { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(session) })
+      socket.emit('registerEmail',session?.user?.email); // Send email when connecting
 
     } catch (error) {
       console.error("error creating user", error)

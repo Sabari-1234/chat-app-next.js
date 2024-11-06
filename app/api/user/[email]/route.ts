@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const PATCH=async(req:NextRequest,{params}:{params:{email:string}})=>{
     try {
-        
         console.log(params)
         const data= await req.json()
         console.log(data)

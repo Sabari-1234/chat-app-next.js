@@ -24,6 +24,7 @@ import { socket } from "../socket";
 import Register from "@/pages/Register";
 import { useSession } from "next-auth/react";
 import { headers } from "next/headers";
+import Link from "next/link";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -86,36 +87,12 @@ export default function Home() {
 
   }, [session && socket])
 
-  useEffect(() => {
-    const handleBeforeUnload = async () => {
-      const email = localStorage.getItem("userEmail");
-      if (email) {
-        try {
-          await fetch(`/api/user/${email}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: "Offline" })
-          });
-        } catch (error) {
-          console.error("Error setting status to offline:", error);
-        }
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-
-
-
   return (
     <div >
       <p>Status: {isConnected ? "connected" : "disconnected"}</p>
       <p>Transport: {transport}</p>
       <Register />
+      <Link href={"/chatHome"}>chatHome</Link>
     </div>
   );
 }
