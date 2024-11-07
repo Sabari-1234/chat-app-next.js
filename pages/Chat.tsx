@@ -142,7 +142,7 @@ const Chat = ({ reciever }: any) => {
     const data = await res.json();
     console.log(data);
     setReceiverInfo(data);
-    setonlineStatus(data.status);
+    data&&setonlineStatus(data?.status);
   };
 
   // const isAtBottom = () => {
