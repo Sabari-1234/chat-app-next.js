@@ -12,7 +12,10 @@ const ChatHome = () => {
     return <p>Please sign in to access the chat.</p>;
   }
   const [Members, setMembers] = useState<any>();
+  let session:any;
+  if(useSession()){
   const { data: session } = useSession();
+  }
   const getUsers = async () => {
     if (session) {
       const res = await fetch("/api/user");
