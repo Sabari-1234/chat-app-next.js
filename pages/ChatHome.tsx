@@ -15,7 +15,8 @@ const ChatHome = () => {
   let session:any;
   if(useSession()){
   const { data: session } = useSession();
-  }
+  
+  
   const getUsers = async () => {
     if (session) {
       const res = await fetch("/api/user");
@@ -61,5 +62,5 @@ const ChatHome = () => {
     </div>
   );
 };
-
+}
 export default ChatHome;
