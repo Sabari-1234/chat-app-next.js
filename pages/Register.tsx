@@ -35,7 +35,7 @@ const Register = () => {
 
     <div>
 
-      {!session ? <button type="submit" onClick={() => signIn("google", { redirectTo: "/chat" })}>Signin with Google</button> : <button onClick={() => signOut()}>singout</button>}
+      {!session ? <button type="submit" onClick={() => signIn("google", { redirectTo: "/chatHome" })}>Signin with Google</button> : <button onClick={() => signOut()}>singout</button>}
 
 
     </div>
