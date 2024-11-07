@@ -7,8 +7,8 @@ import React, { useEffect, useState } from "react";
 import { IoInformationCircleOutline } from "react-icons/io5";
 
 const ChatHome = () => {
-  console.log(useSession().status);
-  if (useSession && useSession().status === "unauthenticated") {
+  // console.log(useSession().status);
+  if (useSession() && useSession()?.status === "unauthenticated") {
     return <p>Please sign in to access the chat.</p>;
   }
   const [Members, setMembers] = useState<any>();
