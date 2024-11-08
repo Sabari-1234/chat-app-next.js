@@ -3,7 +3,7 @@ import next from 'next';
 import { Server as SocketIOServer } from 'socket.io';
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+const hostname = dev ? 'localhost' : '0.0.0.0'; // Use localhost for dev, 0.0.0.0 for production
 const port = process.env.PORT || 3000; // Default to 3000 if PORT is not set
 
 
@@ -19,7 +19,7 @@ app.prepare().then(() => {
   const connectedClients = {}; // Object to store connected clients and their email IDs
   const updateOnlineStatus = async (data,email) => {
     try {
-      await fetch(`http://localhost:3000/api/user/${email}`, {
+      await fetch(`${process.env.SERVER_URL}/api/user/${email}`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PATCH',
         body: JSON.stringify(data),
