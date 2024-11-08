@@ -19,7 +19,7 @@ const Chat = ({ reciever }: any) => {
   const { data: session } = useSession();
 
   const [chatForm, setchatForm] = useState<any>({ text: "" });
-  const [chatData, setchatData] = useState<any>([]);
+  const [chatData, setchatData] = useState<any>({});
   const [typingStatus, settypingStatus] = useState<any>(null);
   const [onlineStatus, setonlineStatus] = useState<any>("Offline");
   const [receiverInfo, setReceiverInfo] = useState({ name: "", image: "" });
@@ -27,6 +27,7 @@ const Chat = ({ reciever }: any) => {
   const [isEdit, setIsEdit] = useState<any>({
     value: false,
     id: null,
+    chatId:"",
     text: "",
   });
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
@@ -63,13 +64,26 @@ const Chat = ({ reciever }: any) => {
       const res = await fetch("../api/chat");
       const data = await res.json();
 
-      const filteredData = data.filter(
-        (msg: any) =>
+      // const filteredData = data.filter(
+      //   (msg: any) =>
+      //     (msg.sender === sender && msg.reciever === reciever) ||
+      //     (msg.sender === reciever && msg.reciever === sender)
+      // );
+
+      console.log(data)
+      const filteredData = data.reduce((acc:any, msg:any) => {
+        if (
           (msg.sender === sender && msg.reciever === reciever) ||
           (msg.sender === reciever && msg.reciever === sender)
-      );
+        ) {
+          acc[msg.chatId] = msg;
+        }
+        return acc;
+      }, {});
 
+      console.log(filteredData);
       setchatData(filteredData);
+
       // setchatForm({ ...chatForm, text: '' })
       if (scroll) scrollToBottom();
     } catch (error) {
@@ -82,12 +96,21 @@ const Chat = ({ reciever }: any) => {
     setShowAttachmentOptions(false);
     const chat = {
       ...chatForm,
+      chatId:Date.now().toString(),
       time: new Date(),
       sender: sender,
       reciever: reciever,
     };
-    socket.emit("message1", chat);
+    console.log(chat)
+    console.log(chatData)
+    // setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:chat}));
+    console.log(chatData)
 
+    socket.emit("message1", chat);
+    setchatForm({ text: "" });
+   
+    setHeightOfInputBox(true);
+    scrollToBottom();
     try {
       await fetch("../api/chat", {
         method: "POST",
@@ -96,15 +119,19 @@ const Chat = ({ reciever }: any) => {
     } catch (error) {
       console.log(error);
     }
-    setchatForm({ text: "" });
-    // scrollToBottom();
-    setHeightOfInputBox(true);
+    // setchatForm({ text: "" });
+    // // scrollToBottom();
+    // setHeightOfInputBox(true);
 
-    getMsg();
+    // getMsg();
   };
   const editMsg = async () => {
-    const chat = { id: isEdit.id, text: isEdit.text };
-    // socket.emit('message1', chat);
+    const chat = { id: isEdit.id, text: isEdit.text,chatId: isEdit.chatId};
+    // setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:{...prevMessages[chat.chatId],text:chat.text}}));
+   
+    socket.emit("editData1", chat);
+    setIsEdit({ value: false, id: null, text: "" });
+    
     try {
       await fetch("../api/chat", {
         method: "PATCH",
@@ -113,16 +140,17 @@ const Chat = ({ reciever }: any) => {
     } catch (error) {
       console.log(error);
     }
-    getMsg(false);
-    setIsEdit({ value: false, id: null, text: "" });
+    // getMsg(false);
+    
   };
-  const deleteForEveryOne = async (id: any) => {
+  const deleteForEveryOne = async (id: any,chatId:any) => {
+    socket.emit("deleteDataId1", chatId);
     try {
       await fetch(`../api/chat/${id}`, { method: "DELETE" });
     } catch (error) {
       console.log(error);
     }
-    getMsg(false);
+    // getMsg(false);
   };
   const handleKeyDown = (e: any) => {
     if (e.key === "Enter") {
@@ -206,7 +234,7 @@ const Chat = ({ reciever }: any) => {
 
   useEffect(() => {
     socket.on("message2", (msg) => {
-      setchatData((prevMessages: any) => [...prevMessages, msg]);
+      setchatData((prevMessages: any) => ({...prevMessages,[msg.chatId]:msg}));
     });
     socket.on("typing2", (data) => {
       if (data.reciever === sender) {
@@ -218,11 +246,23 @@ const Chat = ({ reciever }: any) => {
         setonlineStatus(data.text);
       }
     });
-
+    socket.on("editData2", (msg) => {
+     setchatData((prevMessages: any) => ({...prevMessages,[msg.chatId]:{...prevMessages[msg.chatId],text:msg.text}}));
+    });
+    socket.on("deleteDataId2", (chatId) => {
+      console.log("object")
+      setchatData((prevMessages:any) => {
+        const newChatData = { ...prevMessages };
+        delete newChatData[chatId];
+        return newChatData;
+      });
+     } );
     return () => {
       socket.off("message2");
       socket.off("typing2");
       socket.off("online2");
+      socket.off("editData2");
+      socket.off("deleteDataId2");
     };
   }, []);
   useEffect(() => {
@@ -270,8 +310,8 @@ const Chat = ({ reciever }: any) => {
           <div className="h-[80%]">
             {/* message body */}
             <div className="overflow-y-auto h-full mb-6 scrollbar-hide overflow-x-clip">
-              {chatData.length !== 0 ? (
-                chatData?.map((chat: any, id: any) => (
+              {Object.keys(chatData).length!== 0 ? (
+                Object.values(chatData)?.map((chat: any, id: any) => (
                   <div
                     className={cn(
                       "flex w-full flex-col",
@@ -285,7 +325,7 @@ const Chat = ({ reciever }: any) => {
                         chat.sender === sender ? "rounded-s-xl" : "rounded-e-xl"
                       )}
                     >
-                      {isEdit.value && isEdit.id == chat._id ? (
+                      {isEdit.value && isEdit.chatId == chat.chatId ? (
                         <div className=" flex w-[366px] ">
                           {isBase64Image(chat.text) === "text" ? (
                             <>
@@ -348,6 +388,7 @@ const Chat = ({ reciever }: any) => {
                                 value: true,
                                 id: chat._id,
                                 text: chat.text,
+                                chatId:chat.chatId
                               })
                             }
                           >
@@ -356,7 +397,7 @@ const Chat = ({ reciever }: any) => {
                           <hr />
                           <p
                             className=" text-sm hover:cursor-pointer"
-                            onClick={() => deleteForEveryOne(chat._id)}
+                            onClick={() => deleteForEveryOne(chat._id,chat.chatId)}
                           >
                             Delete for everyone
                           </p>

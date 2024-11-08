@@ -16,6 +16,9 @@ const chatSchema = new Schema({
     reciever: {
         type: Schema.Types.String,
         ref: "User"
+    },
+    chatId:{
+        type: String,
     }
 
 })

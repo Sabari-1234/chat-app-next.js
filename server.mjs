@@ -56,6 +56,18 @@ app.prepare().then(() => {
       console.log('Received from client:', data);
       io.emit('online2', data);
     });
+    //edit msg
+
+     //edit event handler
+     socket.on('editData1', (data) => {
+      console.log('Received from client:', data);
+      io.emit('editData2', data);
+    });
+     //delete event handler
+     socket.on('deleteDataId1', (data) => {
+      console.log('Received from client:', data);
+      io.emit('deleteDataId2', data);
+    });
     // Handle disconnect
     socket.on('disconnect', () => {
       const email = connectedClients[socket.id]; // Get the email ID from the connected clients object
