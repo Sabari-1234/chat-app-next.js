@@ -19,7 +19,8 @@ app.prepare().then(() => {
   const connectedClients = {}; // Object to store connected clients and their email IDs
   const updateOnlineStatus = async (data,email) => {
     try {
-      await fetch(`${process.env.SERVER_URL}/api/user/${email}`, {
+      console.log(process.env.NEXT_PUBLIC_SERVER_URL)
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/${email}`, {
         headers: { 'Content-Type': 'application/json' },
         method: 'PATCH',
         body: JSON.stringify(data),
