@@ -101,10 +101,11 @@ const Chat = ({ reciever }: any) => {
       sender: sender,
       reciever: reciever,
     };
-    console.log(chat)
-    console.log(chatData)
+    // console.log(chat)
+    // console.log(chatData)
     // setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:chat}));
-    console.log(chatData)
+    // console.log(chatData)
+    setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:chat}));
 
     socket.emit("message1", chat);
     setchatForm({ text: "" });
@@ -127,7 +128,7 @@ const Chat = ({ reciever }: any) => {
   };
   const editMsg = async () => {
     const chat = { id: isEdit.id, text: isEdit.text,chatId: isEdit.chatId};
-    // setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:{...prevMessages[chat.chatId],text:chat.text}}));
+    setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:{...prevMessages[chat.chatId],text:chat.text}}));
    
     socket.emit("editData1", chat);
     setIsEdit({ value: false, id: null, text: "" });
@@ -144,6 +145,11 @@ const Chat = ({ reciever }: any) => {
     
   };
   const deleteForEveryOne = async (id: any,chatId:any) => {
+    setchatData((prevMessages:any) => {
+      const newChatData = { ...prevMessages };
+      delete newChatData[chatId];
+      return newChatData;
+    });
     socket.emit("deleteDataId1", chatId);
     try {
       await fetch(`../api/chat/${id}`, { method: "DELETE" });
