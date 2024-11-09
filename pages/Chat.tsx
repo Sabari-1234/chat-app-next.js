@@ -129,7 +129,7 @@ const Chat = ({ reciever }: any) => {
   const editMsg = async () => {
     const chat = { id: isEdit.id, text: isEdit.text,chatId: isEdit.chatId};
     setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:{...prevMessages[chat.chatId],text:chat.text}}));
-   
+   console.log("object")
     socket.emit("editData1", chat);
     setIsEdit({ value: false, id: null, text: "" });
     
@@ -189,21 +189,84 @@ const Chat = ({ reciever }: any) => {
   // useEffect(() => {
   //   isAtBottom()&&scrollToBottom();
   // }, [chatData.length]);
+  // const handleFileChange = (event: any) => {
+  //   const file = event.target.files[0]; // Get the first selected file
+
+  //   if (file) {
+  //     const reader = new FileReader(); // Create a FileReader instance
+  //     reader.onloadend = () => {
+  //       const base64String = reader.result; // The result is in Base64 format
+  //       if (showAttachmentOptions)
+  //         setchatForm({ ...chatForm, text: base64String });
+  //       if (isEdit.value) setIsEdit({ ...isEdit, text: base64String });
+  //       console.log("received");
+  //     };
+  //     reader.readAsDataURL(file); // Read the file as a data URL (Base64)
+  //   }
+  // };
+
+
   const handleFileChange = (event: any) => {
     const file = event.target.files[0]; // Get the first selected file
-
+    console.log('hghghghgghg')
+  
     if (file) {
       const reader = new FileReader(); // Create a FileReader instance
-      reader.onloadend = () => {
-        const base64String = reader.result; // The result is in Base64 format
-        if (showAttachmentOptions)
-          setchatForm({ ...chatForm, text: base64String });
-        if (isEdit.value) setIsEdit({ ...isEdit, text: base64String });
-        console.log("received");
+  
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target && typeof e.target.result === "string") {
+          const image = new Image();
+          image.src = e.target.result; // Set the image src to the loaded file data
+  
+          image.onload = () => {
+            const canvas = document.createElement("canvas");
+            const maxWidth = 800; // Set maximum width for the compressed image
+            const maxHeight = 800; // Set maximum height for the compressed image
+  
+            let width = image.width;
+            let height = image.height;
+  
+            // Calculate the new width and height while maintaining aspect ratio
+            if (width > height) {
+              if (width > maxWidth) {
+                height *= maxWidth / width;
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width *= maxHeight / height;
+                height = maxHeight;
+              }
+            }
+  
+            // Set canvas size to the new dimensions
+            canvas.width = width;
+            canvas.height = height;
+  
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(image, 0, 0, width, height);
+  
+            // Compress the image with 70% quality
+            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+            console.log(compressedBase64)
+  
+            // Update state with the compressed image data
+            if (showAttachmentOptions)
+              setchatForm({ ...chatForm, text: compressedBase64 });
+            if (isEdit.value) setIsEdit({ ...isEdit, text: compressedBase64 });
+  
+            console.log("Image compressed and set in state");
+          };
+        } else {
+          console.error("Failed to load the file as a valid image");
+        }
       };
-      reader.readAsDataURL(file); // Read the file as a data URL (Base64)
+  
+      // Read the file as a data URL to load it as an image
+      reader.readAsDataURL(file);
     }
   };
+  
 
   function isBase64Image(base64String: string) {
     // Check if input is a string
@@ -240,8 +303,10 @@ const Chat = ({ reciever }: any) => {
 
   useEffect(() => {
     socket.on("message2", (msg) => {
+      // if(msg.receiver===sender)
       setchatData((prevMessages: any) => ({...prevMessages,[msg.chatId]:msg}));
-    });
+    }
+  );
     socket.on("typing2", (data) => {
       if (data.reciever === sender) {
         settypingStatus(data.text);
@@ -351,7 +416,7 @@ const Chat = ({ reciever }: any) => {
                             </>
                           ) : (
                             <div className=" w-[366px] flex flex-col">
-                              <Image
+                              <Images
                                 text={isEdit.text}
                                 fullScreen={fullScreen}
                               />
@@ -368,7 +433,7 @@ const Chat = ({ reciever }: any) => {
                       ) : isBase64Image(chat.text) == "text" ? (
                         <span className="block w-full">{chat.text}</span>
                       ) : isBase64Image(chat.text) == "image" ? (
-                        <Image text={chat.text} fullScreen={fullScreen} />
+                        <Images text={chat.text} fullScreen={fullScreen} />
                       ) : isBase64Image(chat.text) == "video" ? (
                         <video src={chat.text} />
                       ) : (
@@ -480,7 +545,7 @@ export const SaveButton = ({ editMsg }: any) => {
   );
 };
 
-export const Image = ({ text, fullScreen }: any) => {
+export const Images = ({ text, fullScreen }: any) => {
   return (
     <img
       src={text}

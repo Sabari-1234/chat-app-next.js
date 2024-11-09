@@ -42,30 +42,30 @@ app.prepare().then(() => {
 
     //message event handler
     socket.on('message1', (data) => {
-      console.log('Received from client:', data);
+      // console.log('Received from client:', data);
       io.emit('message2', data);
     });
 
      // typing event handler
      socket.on('typing1', (data) => {
-      console.log('Received from client:', data);
+      // console.log('Received from client:', data);
       io.emit('typing2', data);
     });
      // online event handler
      socket.on('online1', (data) => {
-      console.log('Received from client:', data);
+      // console.log('Received from client:', data);
       io.emit('online2', data);
     });
     //edit msg
 
      //edit event handler
      socket.on('editData1', (data) => {
-      console.log('Received from client:', data);
+      // console.log('Received from client:', data);
       io.emit('editData2', data);
     });
      //delete event handler
      socket.on('deleteDataId1', (data) => {
-      console.log('Received from client:', data);
+      // console.log('Received from client:', data);
       io.emit('deleteDataId2', data);
     });
     // Handle disconnect
