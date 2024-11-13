@@ -24,7 +24,7 @@ import {
 import { socket } from "@/socket";
 import { useSession } from "next-auth/react";
 
-export function Home() {
+function Home() {
   // console.log(useSession().status);
   const [Members, setMembers] = useState<any>();
   if (useSession() && useSession()?.status === "unauthenticated") {
@@ -193,3 +193,4 @@ const Skeleton = ({ profile }: any) => (
     />
   </div>
 );
+export default Home;

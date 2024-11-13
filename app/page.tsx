@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import { useSession } from "next-auth/react";
-import { Login } from "@/pages/Login";
+import Login from "@/pages/Login";
 
 export default function Home() {
   const { data: session } = useSession();

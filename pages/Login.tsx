@@ -245,7 +245,7 @@ const World = dynamic(
   }
 );
 
-export function Login() {
+function Login() {
   if (!useSession()) {
     return <p>Please sign in to access the chat.</p>;
   }
@@ -697,3 +697,5 @@ export function Login() {
     </div>
   );
 }
+
+export default Login;
