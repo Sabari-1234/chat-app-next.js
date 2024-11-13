@@ -30,18 +30,21 @@ export const viewport: Viewport = {
 
 const inter = Inter({ subsets: ["latin"] });
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-
-    <html lang="en" suppressHydrationWarning={true} suppressContentEditableWarning={true}>
+    <html
+      lang="en"
+      suppressHydrationWarning={true}
+      suppressContentEditableWarning={true}
+      className="dark"
+    >
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider></body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
-
   );
 }

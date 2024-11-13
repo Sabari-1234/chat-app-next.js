@@ -1,10 +1,8 @@
-import ChatHome from '@/pages/ChatHome'
-import React from 'react'
+import ChatHome from "@/pages/ChatHome";
+import React from "react";
 
 const page = () => {
-    return (
-        <ChatHome />
-    )
-}
+  return <ChatHome />;
+};
 
-export default page
+export default page;

@@ -10,8 +10,8 @@ import { IoSaveOutline } from "react-icons/io5";
 import { RiAttachment2 } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
 import { IoInformationCircleOutline } from "react-icons/io5";
-import PersonTag from "@/utils/components/PersonTag";
-import EmojiPicker from 'emoji-picker-react';
+import PersonTag from "@/components/PersonTag";
+import EmojiPicker from "emoji-picker-react";
 const Chat = ({ reciever }: any) => {
   if (!useSession()) {
     return <p>Please sign in to access the chat.</p>;
@@ -27,7 +27,7 @@ const Chat = ({ reciever }: any) => {
   const [isEdit, setIsEdit] = useState<any>({
     value: false,
     id: null,
-    chatId:"",
+    chatId: "",
     text: "",
   });
   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
@@ -35,7 +35,7 @@ const Chat = ({ reciever }: any) => {
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
   const editInputRef = useRef<HTMLTextAreaElement>(null);
   const [imageFullView, setImageFullView] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   // Scroll to bottom function
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -70,8 +70,8 @@ const Chat = ({ reciever }: any) => {
       //     (msg.sender === reciever && msg.reciever === sender)
       // );
 
-      console.log(data)
-      const filteredData = data.reduce((acc:any, msg:any) => {
+      console.log(data);
+      const filteredData = data.reduce((acc: any, msg: any) => {
         if (
           (msg.sender === sender && msg.reciever === reciever) ||
           (msg.sender === reciever && msg.reciever === sender)
@@ -96,7 +96,7 @@ const Chat = ({ reciever }: any) => {
     setShowAttachmentOptions(false);
     const chat = {
       ...chatForm,
-      chatId:Date.now().toString(),
+      chatId: Date.now().toString(),
       time: new Date(),
       sender: sender,
       reciever: reciever,
@@ -105,11 +105,14 @@ const Chat = ({ reciever }: any) => {
     // console.log(chatData)
     // setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:chat}));
     // console.log(chatData)
-    setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:chat}));
+    setchatData((prevMessages: any) => ({
+      ...prevMessages,
+      [chat.chatId]: chat,
+    }));
 
     socket.emit("message1", chat);
     setchatForm({ text: "" });
-   
+
     setHeightOfInputBox(true);
     scrollToBottom();
     try {
@@ -127,12 +130,15 @@ const Chat = ({ reciever }: any) => {
     // getMsg();
   };
   const editMsg = async () => {
-    const chat = { id: isEdit.id, text: isEdit.text,chatId: isEdit.chatId};
-    setchatData((prevMessages: any) => ({...prevMessages,[chat.chatId]:{...prevMessages[chat.chatId],text:chat.text}}));
-   console.log("object")
+    const chat = { id: isEdit.id, text: isEdit.text, chatId: isEdit.chatId };
+    setchatData((prevMessages: any) => ({
+      ...prevMessages,
+      [chat.chatId]: { ...prevMessages[chat.chatId], text: chat.text },
+    }));
+    console.log("object");
     socket.emit("editData1", chat);
     setIsEdit({ value: false, id: null, text: "" });
-    
+
     try {
       await fetch("../api/chat", {
         method: "PATCH",
@@ -142,10 +148,9 @@ const Chat = ({ reciever }: any) => {
       console.log(error);
     }
     // getMsg(false);
-    
   };
-  const deleteForEveryOne = async (id: any,chatId:any) => {
-    setchatData((prevMessages:any) => {
+  const deleteForEveryOne = async (id: any, chatId: any) => {
+    setchatData((prevMessages: any) => {
       const newChatData = { ...prevMessages };
       delete newChatData[chatId];
       return newChatData;
@@ -176,7 +181,7 @@ const Chat = ({ reciever }: any) => {
     const data = await res.json();
     console.log(data);
     setReceiverInfo(data);
-    data&&setonlineStatus(data?.status);
+    data && setonlineStatus(data?.status);
   };
 
   // const isAtBottom = () => {
@@ -205,27 +210,26 @@ const Chat = ({ reciever }: any) => {
   //   }
   // };
 
-
   const handleFileChange = (event: any) => {
     const file = event.target.files[0]; // Get the first selected file
-    console.log('hghghghgghg')
-  
+    console.log("hghghghgghg");
+
     if (file) {
       const reader = new FileReader(); // Create a FileReader instance
-  
+
       reader.onload = (e: ProgressEvent<FileReader>) => {
         if (e.target && typeof e.target.result === "string") {
           const image = new Image();
           image.src = e.target.result; // Set the image src to the loaded file data
-  
+
           image.onload = () => {
             const canvas = document.createElement("canvas");
             const maxWidth = 800; // Set maximum width for the compressed image
             const maxHeight = 800; // Set maximum height for the compressed image
-  
+
             let width = image.width;
             let height = image.height;
-  
+
             // Calculate the new width and height while maintaining aspect ratio
             if (width > height) {
               if (width > maxWidth) {
@@ -238,35 +242,34 @@ const Chat = ({ reciever }: any) => {
                 height = maxHeight;
               }
             }
-  
+
             // Set canvas size to the new dimensions
             canvas.width = width;
             canvas.height = height;
-  
+
             const ctx = canvas.getContext("2d");
             ctx?.drawImage(image, 0, 0, width, height);
-  
+
             // Compress the image with 70% quality
             const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
-            console.log(compressedBase64)
-  
+            console.log(compressedBase64);
+
             // Update state with the compressed image data
             if (showAttachmentOptions)
               setchatForm({ ...chatForm, text: compressedBase64 });
             if (isEdit.value) setIsEdit({ ...isEdit, text: compressedBase64 });
-  
+
             console.log("Image compressed and set in state");
           };
         } else {
           console.error("Failed to load the file as a valid image");
         }
       };
-  
+
       // Read the file as a data URL to load it as an image
       reader.readAsDataURL(file);
     }
   };
-  
 
   function isBase64Image(base64String: string) {
     // Check if input is a string
@@ -290,12 +293,12 @@ const Chat = ({ reciever }: any) => {
     setShowAttachmentOptions((c) => !c);
   };
 
-  const onEmojiClick=(event:any, emojiObject:any)=>{
-    console.log("clicked")
-    console.log(event)
-    console.log(event.emoji)
-    setchatForm((c:any)=>({ ...chatForm, text:c.text+event.emoji}));
-  }
+  const onEmojiClick = (event: any, emojiObject: any) => {
+    console.log("clicked");
+    console.log(event);
+    console.log(event.emoji);
+    setchatForm((c: any) => ({ ...chatForm, text: c.text + event.emoji }));
+  };
 
   useEffect(() => {
     getMsg();
@@ -304,9 +307,11 @@ const Chat = ({ reciever }: any) => {
   useEffect(() => {
     socket.on("message2", (msg) => {
       // if(msg.receiver===sender)
-      setchatData((prevMessages: any) => ({...prevMessages,[msg.chatId]:msg}));
-    }
-  );
+      setchatData((prevMessages: any) => ({
+        ...prevMessages,
+        [msg.chatId]: msg,
+      }));
+    });
     socket.on("typing2", (data) => {
       if (data.reciever === sender) {
         settypingStatus(data.text);
@@ -318,16 +323,19 @@ const Chat = ({ reciever }: any) => {
       }
     });
     socket.on("editData2", (msg) => {
-     setchatData((prevMessages: any) => ({...prevMessages,[msg.chatId]:{...prevMessages[msg.chatId],text:msg.text}}));
+      setchatData((prevMessages: any) => ({
+        ...prevMessages,
+        [msg.chatId]: { ...prevMessages[msg.chatId], text: msg.text },
+      }));
     });
     socket.on("deleteDataId2", (chatId) => {
-      console.log("object")
-      setchatData((prevMessages:any) => {
+      console.log("object");
+      setchatData((prevMessages: any) => {
         const newChatData = { ...prevMessages };
         delete newChatData[chatId];
         return newChatData;
       });
-     } );
+    });
     return () => {
       socket.off("message2");
       socket.off("typing2");
@@ -381,7 +389,7 @@ const Chat = ({ reciever }: any) => {
           <div className="h-[80%]">
             {/* message body */}
             <div className="overflow-y-auto h-full mb-6 scrollbar-hide overflow-x-clip">
-              {Object.keys(chatData).length!== 0 ? (
+              {Object.keys(chatData).length !== 0 ? (
                 Object.values(chatData)?.map((chat: any, id: any) => (
                   <div
                     className={cn(
@@ -459,7 +467,7 @@ const Chat = ({ reciever }: any) => {
                                 value: true,
                                 id: chat._id,
                                 text: chat.text,
-                                chatId:chat.chatId
+                                chatId: chat.chatId,
                               })
                             }
                           >
@@ -468,7 +476,9 @@ const Chat = ({ reciever }: any) => {
                           <hr />
                           <p
                             className=" text-sm hover:cursor-pointer"
-                            onClick={() => deleteForEveryOne(chat._id,chat.chatId)}
+                            onClick={() =>
+                              deleteForEveryOne(chat._id, chat.chatId)
+                            }
                           >
                             Delete for everyone
                           </p>
@@ -510,25 +520,36 @@ const Chat = ({ reciever }: any) => {
                 <RiAttachment2 className="size-6 text-zinc-500" />
               </button>
               <div>
-              <textarea
-                placeholder="Enter message..."
-                value={!showAttachmentOptions ? chatForm.text : ""}
-                disabled={showAttachmentOptions && true}
-                ref={chatInputRef}
-                onChange={typingHandler}
-                onKeyDown={handleKeyDown}
-                className="border border-zinc-200 rounded-lg max-h-28  w-[30rem] mx-3 pl-2 outline-none resize-none  text-zinc-500 pr-12"
-                autoFocus
-              />
-              <span className='text-3xl absolute right-12 top-2 select-none' onClick={()=>{setShowEmojiPicker(!showEmojiPicker)}}>&#128540;</span>
+                <textarea
+                  placeholder="Enter message..."
+                  value={!showAttachmentOptions ? chatForm.text : ""}
+                  disabled={showAttachmentOptions && true}
+                  ref={chatInputRef}
+                  onChange={typingHandler}
+                  onKeyDown={handleKeyDown}
+                  className="border border-zinc-200 rounded-lg max-h-28  w-[30rem] mx-3 pl-2 outline-none resize-none  text-zinc-500 pr-12"
+                  autoFocus
+                />
+                <span
+                  className="text-3xl absolute right-12 top-2 select-none"
+                  onClick={() => {
+                    setShowEmojiPicker(!showEmojiPicker);
+                  }}
+                >
+                  &#128540;
+                </span>
               </div>
               <button onClick={() => sentMsg(chatForm)}>
                 <GrSend className="size-6 text-zinc-500" />
               </button>
-              <div className={cn("absolute bottom-full",showEmojiPicker?"block":"hidden")}>
-              <EmojiPicker onEmojiClick={onEmojiClick}/>
+              <div
+                className={cn(
+                  "absolute bottom-full",
+                  showEmojiPicker ? "block" : "hidden"
+                )}
+              >
+                <EmojiPicker onEmojiClick={onEmojiClick} />
               </div>
-              
             </div>
           </div>
         </div>

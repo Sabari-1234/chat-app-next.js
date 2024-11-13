@@ -1,6 +1,6 @@
 "use client";
 import { socket } from "@/socket";
-import PersonTag from "@/utils/components/PersonTag";
+import PersonTag from "@/components/PersonTag";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";

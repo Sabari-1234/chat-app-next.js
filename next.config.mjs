@@ -7,20 +7,18 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = withPWA({
-    images: {
-        remotePatterns: [
-            {
-              protocol: 'https',
-              hostname: 'https://lh3.googleusercontent.com',
-              port: '',
-              pathname: '/**',
-            },
-          ],
-    }
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 });
-
 export default nextConfig;
-
 
 // import {
 //   PHASE_DEVELOPMENT_SERVER,

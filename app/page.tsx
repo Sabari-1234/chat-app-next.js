@@ -1,30 +1,9 @@
-// import Register from "@/pages/Register";
-
-
-// export default function Home() {
-//   return (
-//     //  <div>
-//     //  <div>
-//     //   <input type="text" placeholder="Enter User Name"/>
-//     //  </div>
-//     //  <div>
-//     //   <input type="password" placeholder="Enter Password" />
-//     //  </div>
-//     //  <button>Login</button>
-//     //  </div>
-//     <Register />
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
-import Register from "@/pages/Register";
 import { useSession } from "next-auth/react";
-import { headers } from "next/headers";
-import Link from "next/link";
+import { Login } from "@/pages/Login";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -42,13 +21,10 @@ export default function Home() {
 
       socket.io.engine.on("upgrade", (transport: any) => {
         setTransport(transport.name);
-
       });
-
     }
 
     function onDisconnect() {
-
       setIsConnected(false);
       setTransport("N/A");
     }
@@ -67,8 +43,8 @@ export default function Home() {
   const updateOnlineStatus = async (data: any) => {
     try {
       await fetch(`/api/user/${localStorage.getItem("email")}`, {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'PATCH',
+        headers: { "Content-Type": "application/json" },
+        method: "PATCH",
         body: JSON.stringify(data),
       });
     } catch (error) {
@@ -77,22 +53,20 @@ export default function Home() {
   };
 
   useEffect(() => {
-
     if (session?.user?.email) {
       localStorage.setItem("email", session?.user?.email);
-      socket.emit('online1', { sender: session?.user?.email, text: "Online" });
-      updateOnlineStatus({ status: 'Online' });
+      socket.emit("online1", { sender: session?.user?.email, text: "Online" });
+      updateOnlineStatus({ status: "Online" });
     }
-
-
-  }, [session && socket])
+  }, [session && socket]);
 
   return (
-    <div >
-      <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-      <p>Transport: {transport}</p>
-      <Register />
-      <Link href={"/chatHome"}>chatHome</Link>
+    <div>
+      {/* <p>Status: {isConnected ? "connected" : "disconnected"}</p>
+      <p>Transport: {transport}</p> */}
+      <Login />
+
+      {/* <Link href={"/chatHome"}>chatHome</Link> */}
     </div>
   );
 }
